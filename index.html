@@ -1,124 +1,107 @@
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-      rel="stylesheet"
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Samurai Duel: a 2D fighting game for one or two players, built with TypeScript and the Canvas API."
     />
-    <style>
-      * {
-        box-sizing: border-box;
-        font-family: 'Press Start 2P', cursive;
-      }
-    </style>
+    <title>Samurai Duel</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230d0b14'/><path d='M3 13 12 4l1 1-9 9z' fill='%23fff'/><path d='M2 12l2 2' stroke='%23fbbf24' stroke-width='2'/></svg>"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <!-- red container div -->
-    <div style="position: relative; display: inline-block">
-      <!-- smaller red container div -->
-      <div
-        style="
-          position: absolute;
-          display: flex;
-          width: 100%;
-          align-items: center;
-          padding: 20px;
-        "
-      >
-        <!-- player health -->
-        <div
-          style="
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            border-top: 4px solid white;
-            border-left: 4px solid white;
-            border-bottom: 4px solid white;
-          "
-        >
-          <div style="background-color: red; height: 30px; width: 100%"></div>
-          <div
-            id="playerHealth"
-            style="
-              position: absolute;
-              background: #818cf8;
-              top: 0;
-              right: 0;
-              bottom: 0;
-              width: 100%;
-            "
-          ></div>
+    <main id="app">
+      <div id="stage">
+        <canvas id="game" width="1024" height="576"></canvas>
+
+        <div id="hud" hidden>
+          <div class="bars">
+            <div class="side p1">
+              <div class="health">
+                <div class="ghost" id="p1-ghost"></div>
+                <div class="fill" id="p1-health"></div>
+              </div>
+              <div class="meta">
+                <span id="p1-name"></span>
+                <span class="pips" id="p1-pips"></span>
+              </div>
+            </div>
+            <div id="timer">60</div>
+            <div class="side p2">
+              <div class="health">
+                <div class="ghost" id="p2-ghost"></div>
+                <div class="fill" id="p2-health"></div>
+              </div>
+              <div class="meta">
+                <span class="pips" id="p2-pips"></span>
+                <span id="p2-name"></span>
+              </div>
+            </div>
+          </div>
+          <div id="message"></div>
         </div>
-  
-        <!-- timer -->
-        <div
-          id="timer"
-          style="
-            background-color: black;
-            width: 100px;
-            height: 50px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            border: 4px solid white;
-          "
-        >
-          10
-        </div>
-        <!-- enemy health -->
-        <div
-          style="
-            position: relative;
-            width: 100%;
-            border-top: 4px solid white;
-            border-bottom: 4px solid white;
-            border-right: 4px solid white;
-          "
-        >
-          <div style="background-color: red; height: 30px"></div>
-          <div
-            id="enemyHealth"
-            style="
-              position: absolute;
-              background: #818cf8;
-              top: 0;
-              right: 0;
-              bottom: 0;
-              left: 0;
-            "
-          ></div>
-        </div>
-        <div></div>
+
+        <section id="menu" class="overlay">
+          <h1>SAMURAI<br /><span>DUEL</span></h1>
+          <p id="loading">LOADING...</p>
+          <div id="menu-body" hidden>
+            <div class="row">
+              <button type="button" data-mode="cpu" class="primary">1 PLAYER</button>
+              <button type="button" data-mode="versus">2 PLAYERS</button>
+            </div>
+            <div class="row difficulty" role="radiogroup" aria-label="CPU difficulty">
+              <span>CPU</span>
+              <button type="button" role="radio" data-difficulty="easy">EASY</button>
+              <button type="button" role="radio" data-difficulty="normal">NORMAL</button>
+              <button type="button" role="radio" data-difficulty="hard">HARD</button>
+            </div>
+            <table class="controls">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>P1</th>
+                  <th>P2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>MOVE</td><td>A D</td><td>&larr; &rarr;</td></tr>
+                <tr><td>JUMP</td><td>W</td><td>&uarr;</td></tr>
+                <tr><td>BLOCK</td><td>S</td><td>&darr;</td></tr>
+                <tr><td>LIGHT</td><td>F</td><td>K</td></tr>
+                <tr><td>HEAVY</td><td>G</td><td>L</td></tr>
+              </tbody>
+            </table>
+            <p class="small">ESC PAUSE &middot; M MUTE</p>
+          </div>
+        </section>
+
+        <section id="pause" class="overlay" hidden>
+          <h2>PAUSED</h2>
+          <div class="row">
+            <button type="button" id="resume" class="primary">RESUME</button>
+            <button type="button" id="quit">MENU</button>
+          </div>
+        </section>
+
+        <section id="result" class="overlay" hidden>
+          <h2 id="result-title"></h2>
+          <p id="result-score"></p>
+          <div class="row">
+            <button type="button" id="rematch" class="primary">REMATCH</button>
+            <button type="button" id="to-menu">MENU</button>
+          </div>
+        </section>
       </div>
-      <div
-        id="displayText"
-        style="
-          position: absolute;
-          color: white;
-          align-items: center;
-          justify-content: center;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          display: none;
-        "
-      >
-        Tie
-      </div>
-      <canvas></canvas>
-    </div>
-  
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
-      integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script src="js/utils.js"></script>
-    <script src="js/classes.js"></script>
-    <script src="index.js"></script>
+      <p class="footer">
+        First to win 2 rounds takes the match. Hold jump for a higher jump, block to take less
+        damage.
+      </p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
   </body>
+</html>
