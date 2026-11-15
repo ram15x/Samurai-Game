@@ -67,11 +67,3 @@ src/
   main.ts        Game loop and screen flow
 tests/           Vitest specs for the game logic
 ```
-
-A few things worth pointing out:
-
-- **Fixed timestep.** The simulation advances at exactly 60 ticks per second using an accumulator, and the renderer interpolates between ticks. The game plays at the same speed on a 60 Hz laptop and a 144 Hz monitor.
-- **Logic is separate from rendering.** `src/game` never touches the DOM, so whole matches run inside unit tests. One test plays 20 CPU-vs-CPU matches to check that the hard CPU beats the easy one.
-- **The CPU plays by the rules.** It produces the same button presses a human does and only looks at the fight every few ticks, so difficulty comes from reaction time and decision quality, not from cheating.
-- **Data-driven attacks.** Each attack lists its startup, active and recovery frames, damage, knockback and hitbox. The hitboxes were measured from the slash arcs in the sprite sheets.
-- **Forgiving input.** Jump and attack presses are buffered for a few ticks, and taps shorter than a tick are still registered.
